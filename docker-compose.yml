@@ -1,0 +1,41 @@
+version: "3.7"
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    networks:
+      elasticNetwork:
+        ipv4_address: 192.168.0.4
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.1
+    environment:
+      discovery.type: "single-node"
+    volumes:
+      - ./esdata:/usr/share/elasticsearch/data
+    # Portas removidas para manter o container isolado do host
+    # ports:
+    #   - "9200:9200"
+  api:
+    image: query_service:latest
+    container_name: api_node
+    networks:
+      - elasticNetwork
+    depends_on:
+      - elasticsearch
+    ports:
+      - "3333:3333"
+    environment:
+      - ELASTIC_HOST=192.168.0.4
+      - ELASTIC_PORT=9200
+      - PORT=3333
+      - AUTH_SECRET=r3dr!v3
+
+volumes:
+  esdata:
+    driver: local
+
+networks:
+  elasticNetwork:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.0.0/16
+          gateway: 192.168.0.1

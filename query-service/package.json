@@ -1,0 +1,15 @@
+{
+  "name": "query-service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "ELASTIC_HOST=localhost ELASTIC_PORT=9200 PORT=8080 AUTH_SECRET=r3dr!v3 nodemon src/index.js"
+  },
+  "dependencies": {
+    "axios": "^0.26.0",
+    "express": "^4.17.3",
+    "jsonwebtoken": "^8.5.1",
+    "uuid": "^8.3.2"
+  }
+}
