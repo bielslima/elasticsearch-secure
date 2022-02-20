@@ -6,8 +6,8 @@ module.exports = class Auth {
       expiresIn: 300,
     });
   }
-  static verifyToken(token) {
-    return jwt.verify(token, process.env.AUTH_SECRET);
+  static verifyToken(token, cb) {
+    return jwt.verify(token, process.env.AUTH_SECRET, cb);
   }
 
   static protectMiddlewareRoute(req, res, next) {
@@ -18,18 +18,18 @@ module.exports = class Auth {
         .status(401)
         .json({ auth: false, message: "No token provided." });
 
-    const verifyToken = this.verifyToken(token);
+    Auth.verifyToken(token, (err, decoded) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ auth: false, message: "Failed to authenticate token." });
 
-    if (!verifyToken)
-      return res
-        .status(500)
-        .json({ auth: false, message: "Failed to authenticate token." });
+      req = {
+        ...req,
+        ...decoded,
+      };
 
-    req = {
-      ...req,
-      ...verifyToken,
-    };
-
-    next();
+      next();
+    });
   }
 };

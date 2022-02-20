@@ -1,5 +1,6 @@
 const ES = require("./data/elastict_search");
 const express = require("express");
+const Auth = require("./core/auth");
 const app = express();
 
 app.disable("x-powered-by");
@@ -31,7 +32,7 @@ const factoryOperation = async (operationRequest) => {
   }
 };
 
-app.post("/:index/search", async (req, res) => {
+app.post("/:index/search", Auth.protectMiddlewareRoute, async (req, res) => {
   const index = req.params.index;
   const query = req.body;
 
@@ -42,7 +43,7 @@ app.post("/:index/search", async (req, res) => {
   return res.status(result.status).json(result.data);
 });
 
-app.put("/:index/doc", async (req, res) => {
+app.put("/:index/doc", Auth.protectMiddlewareRoute, async (req, res) => {
   const { index } = req.params;
 
   const docData = req.body;
@@ -52,6 +53,14 @@ app.put("/:index/doc", async (req, res) => {
   const result = await factoryOperation(esInstance.putRegister(docData));
 
   return res.status(result.status).json(result.data);
+});
+
+app.post("/login", (req, res) => {
+  return res.json({
+    token: Auth.generateToken({
+      userId: "myPersonalAccountId",
+    }),
+  });
 });
 
 const port = process.env.PORT || 3000;
